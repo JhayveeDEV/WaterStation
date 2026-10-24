@@ -9,7 +9,7 @@
 
 ## Water station workflows
 
-Run `php artisan migrate` after pulling changes to create the supplier receipt and repeat-order tables. Repeat orders use cash payment and are not charged online automatically; customers can pause or skip them from **Repeat orders**.
+Locally, run `php artisan migrate` after pulling changes to create new tables. Wasmer Edge runs migrations automatically before deployment. Repeat orders use cash payment and are not charged online automatically; customers can pause or skip them from **Repeat orders**.
 
 The repeat-order job runs daily at 6:00 AM using Laravel's scheduler. For local development, run `php artisan schedule:work`. In production, configure the platform scheduler to run `php artisan schedule:run` every minute. On Wasmer Edge, configure this as a scheduled job.
 
@@ -25,9 +25,9 @@ Wasmer Edge detects Laravel applications and installs Composer dependencies duri
 
 Wasmer provides database settings as `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, and `DB_PASSWORD`. The Laravel MySQL configuration accepts `DB_NAME` as a fallback for `DB_DATABASE`, and selects MySQL by default when `DB_HOST` is present. Keep SQLite for local development only; Wasmer Edge instances are stateless by default.
 
-After configuring the database, run migrations from a Wasmer remote session with `php artisan migrate --force --no-interaction`. The `--force` flag prevents Laravel's production confirmation prompt; `--no-interaction` avoids requiring a terminal. Do not run migrations as an interactive startup command.
+The repository's `app.yaml` provisions a Wasmer MySQL database and runs Laravel migrations before each deployment without an interactive prompt. It also seeds baseline roles, delivery areas, products, and one administrator. Set `ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` of at least 16 characters in Wasmer's environment settings; treat the password as a secret. Optionally set `ADMIN_NAME`. The account is created only once, so later deployments will not reset its password. Demo logins and sample orders are intentionally not seeded in production. The regular `DatabaseSeeder` remains available for local development.
 
-Ensure the deployment build runs `npm run build` so Laravel's Vite manifest is present in `public/build`. Configure Wasmer's scheduled job to run `php artisan schedule:run` every minute if you rely on repeat orders or other Laravel scheduled tasks.
+The Wasmer configuration also runs `php artisan schedule:run` every minute for repeat orders and other Laravel scheduled tasks. Ensure the deployment build runs `npm run build` so Laravel's Vite manifest is present in `public/build`.
 
 Set `PAYMENTS_GATEWAY=mock` until PayMongo is configured. For PayMongo, set `PAYMENTS_GATEWAY=paymongo` and provide `PAYMONGO_SECRET_KEY` and `PAYMONGO_WEBHOOK_SECRET` using Wasmer's secret settings. Never commit these values or a production `.env` file.
 

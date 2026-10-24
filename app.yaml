@@ -1,0 +1,38 @@
+kind: wasmer.io/App.v0
+owner: jhayveedev
+name: waterstation
+package: .
+
+env:
+  APP_ENV: production
+  APP_DEBUG: "false"
+  DB_CONNECTION: mysql
+
+capabilities:
+  database:
+    engine: mysql
+
+jobs:
+  - name: migrate-database
+    trigger: pre-deployment
+    action:
+      execute:
+        command: php
+        cli_args:
+          - artisan
+          - migrate
+          - --force
+          - --no-interaction
+          - --seed
+          - --seeder=ProductionDatabaseSeeder
+        timeout: 5m
+  - name: run-laravel-scheduler
+    trigger: '*/1 * * * *'
+    action:
+      execute:
+        command: php
+        cli_args:
+          - artisan
+          - schedule:run
+          - --no-interaction
+        timeout: 2m
