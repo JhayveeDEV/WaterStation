@@ -301,6 +301,43 @@ class PayMongoCheckoutTest extends TestCase
         Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
     }
 
+    public function test_successful_payment_intent_confirms_checkout_when_payment_list_is_empty(): void
+    {
+        $customer = $this->seedCustomer();
+        $order = $this->createOnlineOrder($customer);
+        $payment = $this->createPayMongoPayment($order);
+        $this->usePayMongoTestCredentials();
+        Http::preventStrayRequests();
+        Http::fake([
+            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+                'data' => [
+                    'id' => 'cs_test_123',
+                    'attributes' => [
+                        'payments' => [],
+                        'payment_intent' => [
+                            'id' => 'pi_test_123',
+                            'attributes' => [
+                                'status' => 'succeeded',
+                                'currency' => 'PHP',
+                                'amount' => 12550,
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+        Event::fake([PaymentStatusUpdated::class]);
+
+        $this->actingAs($customer)
+            ->get(route('customer.orders.show', $order))
+            ->assertOk()
+            ->assertSee('Payment: QR Ph · Paid');
+
+        $this->assertSame('paid', $payment->fresh()->status);
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
+    }
+
     public function test_success_redirect_does_not_mark_order_paid_when_paymongo_reports_unpaid(): void
     {
         $customer = $this->seedCustomer();

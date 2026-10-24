@@ -69,22 +69,40 @@ class PayMongoPaymentConfirmer
             fn ($attempt): bool => is_array($attempt) && data_get($attempt, 'attributes.status') === 'paid',
         );
 
-        if (! is_array($paidAttempt)) {
-            return null;
+        if (is_array($paidAttempt)) {
+            $paidAttributes = data_get($paidAttempt, 'attributes', []);
+
+            if (! is_array($paidAttributes)) {
+                Log::warning('PayMongo returned incomplete payment details during payment confirmation.', [
+                    'payment_id' => $payment->id,
+                    'checkout_session_id' => $sessionId,
+                ]);
+
+                return null;
+            }
+
+            return $this->markPaid($payment, $paidAttributes);
         }
 
-        $paidAttributes = data_get($paidAttempt, 'attributes', []);
+        $paymentIntentAttributes = data_get($session, 'attributes.payment_intent.attributes', []);
 
-        if (! is_array($paidAttributes)) {
-            Log::warning('PayMongo returned incomplete payment details during payment confirmation.', [
-                'payment_id' => $payment->id,
-                'checkout_session_id' => $sessionId,
-            ]);
-
-            return null;
+        if (is_array($paymentIntentAttributes) && data_get($paymentIntentAttributes, 'status') === 'succeeded') {
+            return $this->markPaid($payment, $paymentIntentAttributes);
         }
 
-        return $this->markPaid($payment, $paidAttributes);
+        Log::info('PayMongo checkout session does not yet show a paid payment.', [
+            'payment_id' => $payment->id,
+            'checkout_session_id' => $sessionId,
+            'session_status' => data_get($session, 'attributes.status'),
+            'payment_statuses' => collect($paymentAttempts)
+                ->filter(fn ($attempt): bool => is_array($attempt))
+                ->map(fn (array $attempt) => data_get($attempt, 'attributes.status'))
+                ->values()
+                ->all(),
+            'payment_intent_status' => data_get($paymentIntentAttributes, 'status'),
+        ]);
+
+        return null;
     }
 
     /**
