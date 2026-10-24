@@ -27,8 +27,7 @@ class OrderController extends Controller
         $this->authorize('view', $order);
         $order->load('payment');
 
-        if ($request->query('payment') === 'success'
-            && $order->payment?->provider === 'paymongo'
+        if ($order->payment?->provider === 'paymongo'
             && ! $order->isPaid()) {
             try {
                 $payments->confirmFromCheckoutSession($order->payment);

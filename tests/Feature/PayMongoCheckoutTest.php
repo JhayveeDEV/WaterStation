@@ -261,6 +261,44 @@ class PayMongoCheckoutTest extends TestCase
         Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
     }
 
+    public function test_order_page_rechecks_paymongo_without_a_success_return_parameter(): void
+    {
+        $customer = $this->seedCustomer();
+        $order = $this->createOnlineOrder($customer);
+        $payment = $this->createPayMongoPayment($order);
+        $this->usePayMongoTestCredentials();
+        Http::preventStrayRequests();
+        Http::fake([
+            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+                'data' => [
+                    'id' => 'cs_test_123',
+                    'attributes' => [
+                        'payments' => [[
+                            'id' => 'pay_test_123',
+                            'attributes' => [
+                                'status' => 'paid',
+                                'currency' => 'PHP',
+                                'amount' => 12550,
+                            ],
+                        ]],
+                    ],
+                ],
+            ]),
+        ]);
+        Event::fake([PaymentStatusUpdated::class]);
+
+        $this->actingAs($customer)
+            ->get(route('customer.orders.show', $order))
+            ->assertOk()
+            ->assertSee('Payment: QR Ph · Paid');
+
+        $this->assertSame('paid', $payment->fresh()->status);
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+            && $request->url() === 'https://api.paymongo.com/v2/checkout_sessions/cs_test_123');
+        Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
+    }
+
     public function test_success_redirect_does_not_mark_order_paid_when_paymongo_reports_unpaid(): void
     {
         $customer = $this->seedCustomer();
@@ -291,7 +329,8 @@ class PayMongoCheckoutTest extends TestCase
             ->get(route('customer.orders.show', ['order' => $order, 'payment' => 'success']))
             ->assertOk()
             ->assertSee('Payment: QR Ph · Unpaid')
-            ->assertSee('PayMongo is confirming your payment.');
+            ->assertSee('We check your payment with PayMongo whenever you open this order.')
+            ->assertSee('Please do not pay again.');
 
         $this->assertSame('pending', $payment->fresh()->status);
         $this->assertSame('unpaid', $order->fresh()->payment_status);

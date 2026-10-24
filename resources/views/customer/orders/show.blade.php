@@ -108,8 +108,8 @@
                 <p class="mt-3 text-xs text-gray-500" data-payment-status>
                     Payment: {{ $order->payment_method_label }} · {{ ucfirst($order->payment_status) }}
                 </p>
-                @if (request('payment') === 'success' && ! $order->isPaid())
-                    <p class="mt-2 text-sm text-amber-700">PayMongo is confirming your payment. Refresh this order shortly to see the updated status.</p>
+                @if ($order->payment?->provider === 'paymongo' && ! $order->isPaid())
+                    <p class="mt-2 text-sm text-amber-700">We check your payment with PayMongo whenever you open this order. If you just paid and it still shows unpaid, refresh in a moment. Please do not pay again.</p>
                 @elseif (request('payment') === 'cancelled')
                     <p class="mt-2 text-sm text-gray-600">Payment was not completed. You can try again from this order.</p>
                 @endif
