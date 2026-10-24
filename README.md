@@ -11,7 +11,25 @@
 
 Run `php artisan migrate` after pulling changes to create the supplier receipt and repeat-order tables. Repeat orders use cash payment and are not charged online automatically; customers can pause or skip them from **Repeat orders**.
 
-The repeat-order job runs daily at 6:00 AM using Laravel's scheduler. For local development, run `php artisan schedule:work`. In production, configure the system scheduler to run `php artisan schedule:run` every minute.
+The repeat-order job runs daily at 6:00 AM using Laravel's scheduler. For local development, run `php artisan schedule:work`. In production, configure the platform scheduler to run `php artisan schedule:run` every minute. On Wasmer Edge, configure this as a scheduled job.
+
+## Deploying on Wasmer Edge
+
+Wasmer Edge detects Laravel applications and installs Composer dependencies during deployment. Configure these values in the Wasmer app's environment settings rather than committing them:
+
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_URL` set to the public HTTPS URL
+- `APP_KEY` set to a key generated once for this deployment; keep it stable between releases
+- `DB_CONNECTION=mysql` when using Wasmer's managed database
+
+Wasmer provides database settings as `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, and `DB_PASSWORD`. The Laravel MySQL configuration accepts `DB_NAME` as a fallback for `DB_DATABASE`, and selects MySQL by default when `DB_HOST` is present. Keep SQLite for local development only; Wasmer Edge instances are stateless by default.
+
+After configuring the database, run migrations from a Wasmer remote session with `php artisan migrate --force --no-interaction`. The `--force` flag prevents Laravel's production confirmation prompt; `--no-interaction` avoids requiring a terminal. Do not run migrations as an interactive startup command.
+
+Ensure the deployment build runs `npm run build` so Laravel's Vite manifest is present in `public/build`. Configure Wasmer's scheduled job to run `php artisan schedule:run` every minute if you rely on repeat orders or other Laravel scheduled tasks.
+
+Set `PAYMENTS_GATEWAY=mock` until PayMongo is configured. For PayMongo, set `PAYMENTS_GATEWAY=paymongo` and provide `PAYMONGO_SECRET_KEY` and `PAYMONGO_WEBHOOK_SECRET` using Wasmer's secret settings. Never commit these values or a production `.env` file.
 
 ## QR Ph payments with PayMongo
 
