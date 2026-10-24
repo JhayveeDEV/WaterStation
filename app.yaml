@@ -6,6 +6,8 @@ package: .
 env:
   APP_ENV: production
   APP_DEBUG: "false"
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: info
   DB_CONNECTION: mysql
 
 capabilities:
