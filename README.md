@@ -37,7 +37,7 @@ The mock QR Ph checkout remains enabled by default. To use PayMongo Hosted Check
 
 The customer is redirected to PayMongo's hosted QR Ph checkout, where they can scan the presented QR code with a supported banking or e-wallet app and follow the provider's payment instructions.
 
-In the PayMongo dashboard, register `https://your-domain/webhooks/paymongo` as a webhook URL and subscribe to `checkout_session.payment.paid`. The URL must be publicly reachable over HTTPS. Run `php artisan migrate` to add the checkout-session fields before switching gateways. Customer orders are only marked paid after a valid signed webhook confirms the matching QR Ph session and amount; returning from the checkout page alone does not confirm payment.
+In the PayMongo dashboard, register `https://your-domain/webhooks/paymongo` as a webhook URL and subscribe to `checkout_session.payment.paid`. The URL must be publicly reachable over HTTPS. Run `php artisan migrate` to add the checkout-session fields before switching gateways. A valid signed webhook confirms payment asynchronously; when a customer returns to the success page, the app also checks the checkout session directly with PayMongo. The redirect by itself never marks an order paid.
 
 ## Local database setup
 

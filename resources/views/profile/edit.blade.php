@@ -41,19 +41,17 @@
                 @csrf @method('PUT')
                 <div>
                     <label class="label" for="current_password">Current password</label>
-                    <input id="current_password" name="current_password" type="password" autocomplete="current-password"
-                           class="input {{ $errors->has('current_password') ? 'input-error' : '' }}" required>
+                    <x-password-input id="current_password" name="current_password" autocomplete="current-password" required :invalid="$errors->has('current_password')" />
                     @error('current_password') <p class="field-error">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="label" for="new_password">New password</label>
-                    <input id="new_password" name="password" type="password" autocomplete="new-password"
-                           class="input {{ $errors->has('password') ? 'input-error' : '' }}" required>
+                    <x-password-input id="new_password" name="password" required :invalid="$errors->has('password')" />
                     @error('password') <p class="field-error">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="label" for="password_confirmation">Confirm new password</label>
-                    <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" class="input" required>
+                    <x-password-input id="password_confirmation" name="password_confirmation" required />
                 </div>
                 <button class="btn-primary">Update password</button>
             </form>

@@ -6,7 +6,12 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\Payments\PaymentGatewayException;
+use App\Services\Payments\PayMongoPaymentConfirmer;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -17,10 +22,26 @@ class OrderController extends Controller
         return view('customer.orders.index', compact('orders'));
     }
 
-    public function show(Request $request, Order $order)
+    public function show(Request $request, Order $order, PayMongoPaymentConfirmer $payments)
     {
         $this->authorize('view', $order);
-        $order->load('items.product', 'histories.user', 'delivery.rider', 'payment');
+        $order->load('payment');
+
+        if ($request->query('payment') === 'success'
+            && $order->payment?->provider === 'paymongo'
+            && ! $order->isPaid()) {
+            try {
+                $payments->confirmFromCheckoutSession($order->payment);
+            } catch (ConnectionException|RequestException|PaymentGatewayException $exception) {
+                Log::warning('Unable to verify PayMongo payment after customer return.', [
+                    'order_id' => $order->id,
+                    'payment_id' => $order->payment->id,
+                    'exception' => $exception,
+                ]);
+            }
+        }
+
+        $order->refresh()->load('items.product', 'histories.user', 'delivery.rider', 'payment');
 
         return view('customer.orders.show', compact('order'));
     }

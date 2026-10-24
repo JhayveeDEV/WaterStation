@@ -12,13 +12,12 @@
         </div>
         <div>
             <label class="label" for="password">New password</label>
-            <input id="password" type="password" name="password" required autocomplete="new-password"
-                   class="input {{ $errors->has('password') ? 'input-error' : '' }}">
+            <x-password-input id="password" name="password" required :invalid="$errors->has('password')" />
             @error('password') <p class="field-error">{{ $message }}</p> @enderror
         </div>
         <div>
             <label class="label" for="password_confirmation">Confirm new password</label>
-            <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" class="input">
+            <x-password-input id="password_confirmation" name="password_confirmation" required />
         </div>
         <button type="submit" class="btn-primary w-full py-2.5">Reset password</button>
     </form>

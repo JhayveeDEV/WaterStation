@@ -23,12 +23,11 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label class="label" for="password">Password</label>
-                <input id="password" type="password" name="password" required autocomplete="new-password"
-                       class="input {{ $errors->has('password') ? 'input-error' : '' }}">
+                <x-password-input id="password" name="password" required :invalid="$errors->has('password')" />
             </div>
             <div>
                 <label class="label" for="password_confirmation">Confirm password</label>
-                <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" class="input">
+                <x-password-input id="password_confirmation" name="password_confirmation" required />
             </div>
         </div>
         @error('password') <p class="field-error -mt-2">{{ $message }}</p> @enderror

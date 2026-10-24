@@ -33,7 +33,7 @@
 </div>
 <div>
     <label class="label" for="password">Password</label>
-    <input id="password" type="password" name="password" autocomplete="new-password" class="input {{ $errors->has('password') ? 'input-error' : '' }}" {{ isset($user) ? '' : 'required' }}>
+    <x-password-input id="password" name="password" :required="! isset($user)" :invalid="$errors->has('password')" />
     @if (isset($user)) <p class="hint">Leave blank to keep the current password.</p> @endif
     @error('password') <p class="field-error">{{ $message }}</p> @enderror
 </div>
