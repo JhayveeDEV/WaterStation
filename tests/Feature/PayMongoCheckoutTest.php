@@ -232,7 +232,8 @@ class PayMongoCheckoutTest extends TestCase
                             'attributes' => [
                                 'status' => 'paid',
                                 'currency' => 'PHP',
-                                'amount' => 12550,
+                                'amount' => 12800,
+                                'net_amount' => 12550,
                             ],
                         ]],
                     ],
@@ -278,7 +279,8 @@ class PayMongoCheckoutTest extends TestCase
                             'attributes' => [
                                 'status' => 'paid',
                                 'currency' => 'PHP',
-                                'amount' => 12550,
+                                'amount' => 12800,
+                                'net_amount' => 12550,
                             ],
                         ]],
                     ],
@@ -317,6 +319,7 @@ class PayMongoCheckoutTest extends TestCase
                                 'status' => 'pending',
                                 'currency' => 'PHP',
                                 'amount' => 12550,
+                                'net_amount' => 12550,
                             ],
                         ]],
                     ],
@@ -362,7 +365,8 @@ class PayMongoCheckoutTest extends TestCase
         $this->usePayMongoTestCredentials();
 
         $payload = $this->paidWebhookPayload('cs_test_123');
-        $payload['data']['data']['attributes']['payments'][0]['attributes']['amount'] = 12549;
+        $payload['data']['data']['attributes']['payments'][0]['attributes']['amount'] = 12800;
+        $payload['data']['data']['attributes']['payments'][0]['attributes']['net_amount'] = 12549;
 
         $this->postPayMongoWebhook($payload)->assertNoContent();
 
@@ -448,8 +452,8 @@ class PayMongoCheckoutTest extends TestCase
                             'attributes' => [
                                 'status' => 'paid',
                                 'currency' => 'PHP',
-                                'amount' => 12550,
-                                'net_amount' => 10800,
+                                'amount' => 12800,
+                                'net_amount' => 12550,
                             ],
                         ]],
                     ],

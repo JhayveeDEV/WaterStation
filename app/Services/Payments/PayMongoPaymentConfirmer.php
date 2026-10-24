@@ -101,13 +101,20 @@ class PayMongoPaymentConfirmer
     private function markPaid(Payment $payment, array $paidAttributes): ?Order
     {
         $expectedAmount = (int) str_replace('.', '', number_format((float) $payment->amount, 2, '.', ''));
+        $paidAmount = data_get($paidAttributes, 'amount');
+        $netAmount = data_get($paidAttributes, 'net_amount');
+        $matchesExpectedAmount = collect([$paidAmount, $netAmount])
+            ->contains(fn ($amount): bool => is_numeric($amount) && (int) $amount === $expectedAmount);
 
         if (data_get($paidAttributes, 'currency') !== 'PHP'
-            || ! is_numeric(data_get($paidAttributes, 'amount'))
-            || (int) data_get($paidAttributes, 'amount') !== $expectedAmount) {
+            || ! $matchesExpectedAmount) {
             Log::warning('PayMongo paid event did not match the expected payment amount.', [
                 'payment_id' => $payment->id,
                 'checkout_session_id' => $payment->provider_reference,
+                'expected_amount' => $expectedAmount,
+                'amount' => $paidAmount,
+                'net_amount' => $netAmount,
+                'currency' => data_get($paidAttributes, 'currency'),
             ]);
 
             return null;
