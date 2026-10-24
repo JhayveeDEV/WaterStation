@@ -41,7 +41,7 @@ class PayMongoPaymentConfirmer
             ->withBasicAuth($secretKey, '')
             ->connectTimeout(5)
             ->timeout(15)
-            ->get('https://api.paymongo.com/v2/checkout_sessions/'.rawurlencode($sessionId))
+            ->get('https://api.paymongo.com/v1/checkout_sessions/'.rawurlencode($sessionId))
             ->throw()
             ->json('data');
 

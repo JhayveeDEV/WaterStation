@@ -223,7 +223,7 @@ class PayMongoCheckoutTest extends TestCase
         $this->usePayMongoTestCredentials();
         Http::preventStrayRequests();
         Http::fake([
-            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+            'api.paymongo.com/v1/checkout_sessions/cs_test_123' => Http::response([
                 'data' => [
                     'id' => 'cs_test_123',
                     'attributes' => [
@@ -257,7 +257,7 @@ class PayMongoCheckoutTest extends TestCase
         ]);
         $this->assertDatabaseCount('notifications', 1);
         Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v2/checkout_sessions/cs_test_123'
+            && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_test_123'
             && $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_waterstation:')));
         Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
     }
@@ -270,7 +270,7 @@ class PayMongoCheckoutTest extends TestCase
         $this->usePayMongoTestCredentials();
         Http::preventStrayRequests();
         Http::fake([
-            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+            'api.paymongo.com/v1/checkout_sessions/cs_test_123' => Http::response([
                 'data' => [
                     'id' => 'cs_test_123',
                     'attributes' => [
@@ -297,7 +297,7 @@ class PayMongoCheckoutTest extends TestCase
         $this->assertSame('paid', $payment->fresh()->status);
         $this->assertSame('paid', $order->fresh()->payment_status);
         Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
-            && $request->url() === 'https://api.paymongo.com/v2/checkout_sessions/cs_test_123');
+            && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_test_123');
         Event::assertDispatchedTimes(PaymentStatusUpdated::class, 1);
     }
 
@@ -309,7 +309,7 @@ class PayMongoCheckoutTest extends TestCase
         $this->usePayMongoTestCredentials();
         Http::preventStrayRequests();
         Http::fake([
-            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+            'api.paymongo.com/v1/checkout_sessions/cs_test_123' => Http::response([
                 'data' => [
                     'id' => 'cs_test_123',
                     'attributes' => [
@@ -346,7 +346,7 @@ class PayMongoCheckoutTest extends TestCase
         $this->usePayMongoTestCredentials();
         Http::preventStrayRequests();
         Http::fake([
-            'api.paymongo.com/v2/checkout_sessions/cs_test_123' => Http::response([
+            'api.paymongo.com/v1/checkout_sessions/cs_test_123' => Http::response([
                 'data' => [
                     'id' => 'cs_test_123',
                     'attributes' => [
