@@ -71,9 +71,23 @@ class Order extends Model
     /** True while this order is set to pay online but hasn't paid yet — used to show the "Pay now" prompt. */
     public function isAwaitingOnlinePayment(): bool
     {
-        return $this->payment_method === 'gcash'
+        return $this->usesOnlinePayment()
             && ! $this->isPaid()
             && ! in_array($this->status->value, ['cancelled', 'rejected'], true);
+    }
+
+    public function usesOnlinePayment(): bool
+    {
+        return in_array($this->payment_method, ['gcash', 'qrph'], true);
+    }
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match ($this->payment_method) {
+            'gcash' => 'GCash',
+            'qrph' => 'QR Ph',
+            default => ucfirst($this->payment_method),
+        };
     }
 
     public function isDelivery(): bool

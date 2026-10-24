@@ -18,7 +18,7 @@
         <label class="label" for="role">Role</label>
         <select id="role" name="role" class="input" required>
             @foreach (['admin', 'staff', 'customer', 'rider'] as $r)
-                <option value="{{ $r }}" {{ old('role', $user->roles->first()?->name ?? '') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
+                <option value="{{ $r }}" {{ old('role', isset($user) ? $user->roles->first()?->name : '') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
             @endforeach
         </select>
         @error('role') <p class="field-error">{{ $message }}</p> @enderror

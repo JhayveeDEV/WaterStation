@@ -17,7 +17,7 @@
                     <div class="flex items-center gap-4">
                         <p class="num text-base font-semibold text-gray-900">₱{{ number_format($payment->amount, 2) }}</p>
                         <form method="POST" action="{{ route('admin.refunds.mark-refunded', $payment) }}"
-                              onsubmit="return confirm('Confirm you have sent ₱{{ number_format($payment->amount, 2) }} back to this customer via GCash?')">
+                              onsubmit="return confirm('Confirm you have sent ₱{{ number_format($payment->amount, 2) }} back to this customer through the original payment method?')">
                             @csrf
                             <button class="btn-primary btn-sm">Mark as refunded</button>
                         </form>

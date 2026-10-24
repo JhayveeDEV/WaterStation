@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -13,7 +14,10 @@ class UserController extends Controller
     {
         $users = User::with('roles')
             ->when($request->role, fn ($q, $role) => $q->role($role))
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where(function ($query) use ($s) {
+                $query->where('name', 'like', "%{$s}%")
+                    ->orWhere('email', 'like', "%{$s}%");
+            }))
             ->latest()->paginate(15)->withQueryString();
 
         return view('admin.users.index', compact('users'));
@@ -28,15 +32,17 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'password' => $data['password'],
-            'status' => $data['status'],
-        ]);
+        DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'password' => $data['password'],
+                'status' => $data['status'],
+            ]);
 
-        $user->assignRole($data['role']);
+            $user->assignRole($data['role']);
+        });
 
         return redirect()->route('admin.users.index')->with('status', 'User created.');
     }
@@ -50,15 +56,17 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $user->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'status' => $data['status'],
-            ...(! empty($data['password']) ? ['password' => $data['password']] : []),
-        ]);
+        DB::transaction(function () use ($data, $user) {
+            $user->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'status' => $data['status'],
+                ...(! empty($data['password']) ? ['password' => $data['password']] : []),
+            ]);
 
-        $user->syncRoles([$data['role']]);
+            $user->syncRoles([$data['role']]);
+        });
 
         return redirect()->route('admin.users.index')->with('status', 'User updated.');
     }

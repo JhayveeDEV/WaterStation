@@ -26,11 +26,11 @@
                     <div>
                         <dt class="text-xs text-gray-500">Payment</dt>
                         <dd class="mt-0.5 flex flex-wrap items-center gap-2 text-gray-900">
-                            {{ ucfirst($order->payment_method) }}
+                            {{ $order->payment_method_label }}
                             <span class="{{ $order->isPaid() ? 'badge-success' : 'badge-warn' }} badge-dot">{{ ucfirst($order->payment_status) }}</span>
                         </dd>
-                        @if ($order->payment_method === 'gcash' && ! $order->isPaid())
-                            <dd class="mt-1 text-xs text-gray-400">The customer hasn't completed GCash checkout yet.</dd>
+                        @if ($order->usesOnlinePayment() && ! $order->isPaid())
+                            <dd class="mt-1 text-xs text-gray-400">The customer hasn't completed online payment yet.</dd>
                         @endif
                     </div>
                     @if ($order->isDelivery())

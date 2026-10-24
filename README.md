@@ -13,6 +13,26 @@ Run `php artisan migrate` after pulling changes to create the supplier receipt a
 
 The repeat-order job runs daily at 6:00 AM using Laravel's scheduler. For local development, run `php artisan schedule:work`. In production, configure the system scheduler to run `php artisan schedule:run` every minute.
 
+## QR Ph payments with PayMongo
+
+The mock QR Ph checkout remains enabled by default. To use PayMongo Hosted Checkout, set `PAYMENTS_GATEWAY=paymongo`, set `APP_URL` to your public HTTPS domain, add your PayMongo secret key to `PAYMONGO_SECRET_KEY`, and add the webhook signing secret to `PAYMONGO_WEBHOOK_SECRET` in `.env`. Keep both keys private and use test-mode credentials until you are ready to accept live payments. PayMongo must have QR Ph enabled for the key's mode.
+
+The customer is redirected to PayMongo's hosted QR Ph checkout, where they can scan the presented QR code with a supported banking or e-wallet app and follow the provider's payment instructions.
+
+In the PayMongo dashboard, register `https://your-domain/webhooks/paymongo` as a webhook URL and subscribe to `checkout_session.payment.paid`. The URL must be publicly reachable over HTTPS. Run `php artisan migrate` to add the checkout-session fields before switching gateways. Customer orders are only marked paid after a valid signed webhook confirms the matching QR Ph session and amount; returning from the checkout page alone does not confirm payment.
+
+## Local database setup
+
+The application uses SQLite by default. Copy `.env.example` to `.env`, generate an application key, then create and seed the local database:
+
+```powershell
+Copy-Item .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+```
+
+The database is stored at `database/database.sqlite`. Set `DB_CONNECTION=mysql` and configure the `DB_*` values in `.env` to use MySQL instead.
+
 Role permissions only grant or deny access to routes and actions that explicitly check them. Adding a permission does not generate a page, controller, or navigation link; those need to be implemented separately.
 
 ## About Laravel

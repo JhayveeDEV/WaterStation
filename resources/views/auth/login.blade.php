@@ -1,10 +1,5 @@
 <x-layouts.guest title="Sign in">
     <div class="space-y-5">
-        <div class="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Demo access</p>
-            <p class="mt-1 text-sm text-emerald-800">Use the quick-fill accounts below or enter a custom email and password.</p>
-        </div>
-
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
             <div>
@@ -33,12 +28,12 @@
             New customer? <a href="{{ route('register') }}" class="font-medium text-brand-600 hover:underline">Create an account</a>
         </p>
 
-        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-3">
-            <p class="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500">Quick demo logins</p>
+        <div class="border-t border-slate-100 pt-4">
+            <p class="mb-3 text-center text-xs font-medium text-slate-500">Or try a demo account</p>
             <div class="grid grid-cols-2 gap-2">
                 @foreach (['admin', 'staff', 'rider', 'customer'] as $demo)
                     <button type="button" data-demo="{{ $demo }}@waterstation.test"
-                            class="btn-secondary btn-sm justify-start capitalize">
+                            class="btn-secondary justify-start rounded-xl px-3 py-2 capitalize">
                         <span class="avatar h-5 w-5 text-[10px]">{{ strtoupper(substr($demo, 0, 1)) }}</span>{{ $demo }}
                     </button>
                 @endforeach

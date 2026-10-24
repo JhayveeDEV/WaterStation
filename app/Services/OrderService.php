@@ -143,8 +143,8 @@ class OrderService
             throw new RuntimeException("Cannot move order from {$order->status->label()} to {$to->label()}.");
         }
 
-        if ($to === OrderStatus::Preparing && $order->payment_method === 'gcash' && ! $order->isPaid()) {
-            throw new RuntimeException('This order is set to pay via GCash and the customer has not completed payment yet.');
+        if ($to === OrderStatus::Preparing && $order->usesOnlinePayment() && ! $order->isPaid()) {
+            throw new RuntimeException('This order is set to pay via '.$order->payment_method_label.' and the customer has not completed payment yet.');
         }
 
         return DB::transaction(function () use ($order, $to, $actor, $note) {
@@ -164,7 +164,7 @@ class OrderService
 
                 // Money was already collected online — there's no live refund
                 // gateway here, so this just flags it for an admin to process
-                // manually (in the actual GCash account) and mark done.
+                // manually through the original payment method and mark done.
                 if ($order->isPaid() && $order->payment) {
                     $order->payment->update(['refund_status' => 'pending']);
                 }

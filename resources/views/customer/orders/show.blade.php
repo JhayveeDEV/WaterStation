@@ -106,10 +106,16 @@
                     <div class="mt-1.5 flex justify-between border-t border-gray-100 pt-2 text-base font-semibold"><span>Total</span><span class="num">₱{{ number_format($order->total_amount, 2) }}</span></div>
                 </div>
                 <p class="mt-3 text-xs text-gray-500" data-payment-status>
-                    Payment: {{ ucfirst($order->payment_method) }} · {{ ucfirst($order->payment_status) }}
+                    Payment: {{ $order->payment_method_label }} · {{ ucfirst($order->payment_status) }}
                 </p>
+                @if (request('payment') === 'success' && ! $order->isPaid())
+                    <p class="mt-2 text-sm text-amber-700">PayMongo is confirming your payment. Refresh this order shortly to see the updated status.</p>
+                @elseif (request('payment') === 'cancelled')
+                    <p class="mt-2 text-sm text-gray-600">Payment was not completed. You can try again from this order.</p>
+                @endif
                 @if ($order->isAwaitingOnlinePayment())
-                    <a href="{{ route('customer.payments.initiate', $order) }}" class="btn-primary mt-3 w-full">Pay with GCash</a>
+                    <a href="{{ route('customer.payments.initiate', $order) }}" class="btn-primary mt-3 w-full">Continue to {{ $order->payment_method_label }} payment</a>
+                    <p class="mt-2 text-xs text-gray-500">Scan the QR Ph code on the secure checkout with a supported banking or e-wallet app.</p>
                 @endif
             </div>
 

@@ -25,7 +25,7 @@
                     </div>
                 @else
                     <div class="mt-4 flex items-center justify-between rounded-md border border-brand-200 bg-brand-50 px-4 py-3">
-                        <span class="text-sm font-medium text-brand-800">Paid via GCash</span>
+                        <span class="text-sm font-medium text-brand-800">Paid via {{ $order->payment_method_label }}</span>
                         <span class="text-sm text-brand-700">Nothing to collect</span>
                     </div>
                 @endif

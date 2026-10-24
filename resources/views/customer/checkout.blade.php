@@ -79,19 +79,19 @@
                             <span class="font-medium">Cash on delivery or pickup</span>
                         </label>
                         <label class="check-tile cursor-pointer py-3">
-                            <input type="radio" name="payment_method" value="gcash" x-model="payment" {{ old('payment_method') === 'gcash' ? 'checked' : '' }}>
-                            <span class="font-medium">GCash</span>
+                            <input type="radio" name="payment_method" value="qrph" x-model="payment" {{ old('payment_method') === 'qrph' ? 'checked' : '' }}>
+                            <span class="font-medium">QR Ph</span>
                         </label>
                     </div>
-                    <p class="mt-3 text-xs text-gray-500" x-show="payment === 'gcash'" x-cloak>
-                        You'll be taken to a secure GCash checkout to pay before the order is confirmed.
+                    <p class="mt-3 text-xs text-gray-500" x-show="payment === 'qrph'" x-cloak>
+                        Secure PayMongo checkout: scan the QR Ph code with a supported banking or e-wallet app and follow the checkout instructions.
                     </p>
                     @error('payment_method') <p class="field-error">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <button class="btn-primary w-full py-3" :disabled="submitting">
-                <span x-show="!submitting" x-text="payment === 'gcash' ? 'Continue to GCash payment' : 'Place order'">Place order</span>
+                <span x-show="!submitting" x-text="payment === 'qrph' ? 'Continue to QR Ph payment' : 'Place order'">Place order</span>
                 <span x-show="submitting" x-cloak>Placing your order…</span>
             </button>
         </form>

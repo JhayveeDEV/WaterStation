@@ -6,19 +6,25 @@ use App\Models\Order;
 use App\Policies\OrderPolicy;
 use App\Services\Payments\MockGcashGateway;
 use App\Services\Payments\PaymentGatewayContract;
+use App\Services\Payments\PayMongoGcashGateway;
 use App\Services\Sms\IprogSmsGateway;
 use App\Services\Sms\SmsGatewayContract;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Swap this binding for a real gateway (PayMongo, Xendit, etc.) to go
-        // live — see the doc comment on MockGcashGateway for what changes.
-        $this->app->bind(PaymentGatewayContract::class, MockGcashGateway::class);
+        $this->app->bind(PaymentGatewayContract::class, function () {
+            return match (config('services.payments.gateway')) {
+                'mock' => $this->app->make(MockGcashGateway::class),
+                'paymongo' => $this->app->make(PayMongoGcashGateway::class),
+                default => throw new InvalidArgumentException('Unsupported payment gateway configured.'),
+            };
+        });
 
         $this->app->bind(SmsGatewayContract::class, IprogSmsGateway::class);
     }
@@ -29,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Keep asset URLs consistent when the app runs behind a reverse proxy in production.
         if (config('app.env') === 'production') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
     }
 }

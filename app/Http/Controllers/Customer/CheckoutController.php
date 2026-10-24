@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
-use App\Models\DeliveryArea;
 use App\Models\Product;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
@@ -59,7 +58,7 @@ class CheckoutController extends Controller
 
         $request->session()->forget(['cart', 'checkout_token']);
 
-        if ($order->payment_method === 'gcash') {
+        if ($order->usesOnlinePayment()) {
             return redirect()->route('customer.payments.initiate', $order);
         }
 

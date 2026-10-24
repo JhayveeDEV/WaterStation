@@ -1,4 +1,4 @@
-<x-layouts.guest title="Pay with GCash">
+<x-layouts.guest title="Pay with {{ $payment->order->payment_method_label }}">
     <div role="note" class="mb-5 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
         <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v5M12 16.5v.01M12 21a9 9 0 100-18 9 9 0 000 18z"/></svg>
         <p>Sandbox mode. No real money moves here.</p>

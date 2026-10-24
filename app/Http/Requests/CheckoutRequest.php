@@ -23,7 +23,7 @@ class CheckoutRequest extends FormRequest
             'contact_phone' => ['required', 'string', 'max:30'],
             'schedule_date' => ['required', 'date', 'after_or_equal:today'],
             'schedule_slot' => ['nullable', 'string'],
-            'payment_method' => ['required', Rule::in(['cash', 'gcash'])],
+            'payment_method' => ['required', Rule::in(['cash', 'qrph'])],
             'notes' => ['nullable', 'string', 'max:500'],
             'checkout_token' => ['required', 'string', 'max:64'],
         ];

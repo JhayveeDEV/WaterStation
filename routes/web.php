@@ -26,9 +26,11 @@ use App\Http\Controllers\Manage\Orders\OrderActionController;
 use App\Http\Controllers\Manage\Orders\OrderBoardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentMockController;
+use App\Http\Controllers\PayMongoWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Rider\DashboardController as RiderDashboard;
 use App\Http\Controllers\Rider\DeliveryController;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -170,6 +172,10 @@ Route::middleware(['auth', 'active', 'permission:manage own orders', 'throttle:2
     Route::post('{payment}/complete', [PaymentMockController::class, 'complete'])->name('complete');
     Route::post('{payment}/cancel', [PaymentMockController::class, 'cancel'])->name('cancel');
 });
+
+Route::post('webhooks/paymongo', PayMongoWebhookController::class)
+    ->withoutMiddleware(ValidateCsrfToken::class)
+    ->name('webhooks.paymongo');
 
 // ------------------------------------------------------------------ admin only
 Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
